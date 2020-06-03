@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+}
+
+group 'io.netty'
+version '0.28-draft.SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.slf4j:slf4j-api:1.7.21'
+    compile group: 'at.favre.lib', name: 'hkdf', version: '1.1.0'
+    compile group: 'com.google.guava', name: 'guava', version: '29.0-jre'
+    compile group: 'io.netty', name: 'netty-all', version: '4.1.50.Final'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
