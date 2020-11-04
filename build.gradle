@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'io.netty'
-version '0.28-draft.SNAPSHOT'
+version '0.29-draft.SNAPSHOT'
 
 repositories {
     mavenCentral()
