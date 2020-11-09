@@ -1,6 +1,7 @@
-package io.netty.chanel.quic;
+package io.netty.chanel.quic.server;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.chanel.quic.*;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandler;
 import io.netty.channel.ChannelPromise;
@@ -8,26 +9,25 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.transport.internal.quic.*;
 import io.netty.transport.internal.quic.exception.QUICErrorDone;
 import io.netty.transport.internal.quic.exception.QUICException;
-import io.netty.util.internal.PlatformDependent;
 
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Artem Martynenko artem7mag@gmail.com
  **/
-public class QuicConnectionHandler extends ByteToMessageDecoder implements ChannelOutboundHandler {
+public class QuicServerConnectionHandler extends ByteToMessageDecoder implements ChannelOutboundHandler {
 
     public static final long MAX_DATAGRAM_SIZE = 1350;
     public static final int QUICHE_MAX_CONN_ID_LEN = 20;
-    private final Map<Integer, Connection> connections = PlatformDependent.newConcurrentHashMap();
     private final Config config;
+    private QuicChannelConnectionHolder connectionStore;
 
-    public QuicConnectionHandler(Config config) {
+    public QuicServerConnectionHandler(Config config, QuicChannelConnectionHolder connectionStore) {
         this.config = config;
+        this.connectionStore = connectionStore;
     }
 
 
@@ -62,18 +62,24 @@ public class QuicConnectionHandler extends ByteToMessageDecoder implements Chann
     }
 
     @Override
+    public void flush(ChannelHandlerContext ctx) throws Exception {
+        ctx.flush();
+    }
+
+    @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
 
-        if (msg instanceof NegotiateVersionPacket) {
-            NegotiateVersionPacket negotiateVersionPacket = (NegotiateVersionPacket) msg;
+        if (msg instanceof NegotiateVersionMessage) {
+            NegotiateVersionMessage negotiateVersionPacket = (NegotiateVersionMessage) msg;
             byte[] out = new byte[(int) MAX_DATAGRAM_SIZE];
             ConnectionManager.quiche_negotiate_version(
                     negotiateVersionPacket.getHeaderInfo().getSourceConnId(),
                     negotiateVersionPacket.getHeaderInfo().getDestinationConnId(),
                     out);
             ByteBuf writeBytes = ctx.alloc().buffer().writeBytes(out);
-        } else if (msg instanceof RetryPacket) {
-            RetryPacket retryPacket = (RetryPacket) msg;
+            ctx.write(writeBytes);
+        } else if (msg instanceof RetryMessage) {
+            RetryMessage retryPacket = (RetryMessage) msg;
             byte[] token = token(retryPacket.getHeaderInfo().getDestinationConnId());
             byte[] newConnectionId = Arrays.copyOf(retryPacket.getHeaderInfo().getDestinationConnId(), retryPacket.getHeaderInfo().getDestinationConnId().length);
             byte[] out = new byte[(int) MAX_DATAGRAM_SIZE];
@@ -84,12 +90,13 @@ public class QuicConnectionHandler extends ByteToMessageDecoder implements Chann
                     retryPacket.getHeaderInfo().getVersion(),
                     out);
             ByteBuf writeBytes = ctx.alloc().buffer().writeBytes(Arrays.copyOf(out, written));
-        } else if (msg instanceof DataPacket) {
-            DataPacket dataPacket = (DataPacket) msg;
+            ctx.write(writeBytes);
+        } else if (msg instanceof DataMessage) {
+            DataMessage dataMessage = (DataMessage) msg;
             byte[] byteBuffer = new byte[(int) MAX_DATAGRAM_SIZE];
             while (true) {
                 try {
-                    int written = dataPacket.getConnection().processSend(byteBuffer);
+                    int written = dataMessage.getConnection().processSend(byteBuffer);
                     ByteBuf packet = ctx.alloc().buffer().writeBytes(Arrays.copyOf(byteBuffer, written));
                     ctx.write(packet);
                 } catch (QUICErrorDone done) {
@@ -104,11 +111,6 @@ public class QuicConnectionHandler extends ByteToMessageDecoder implements Chann
     }
 
     @Override
-    public void flush(ChannelHandlerContext ctx) throws Exception {
-        ctx.flush();
-    }
-
-    @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         byte[] raw = getAllReadableBytes(in);
         if (raw.length == 0) {
@@ -118,17 +120,17 @@ public class QuicConnectionHandler extends ByteToMessageDecoder implements Chann
         //TODO: change values to configurable
         HeaderInfo headerInfo = ConnectionManager.headerInfo(raw, 16, 16, 30);
         int destConnIdHash = Arrays.hashCode(headerInfo.getDestinationConnId());
-        Connection connection = connections.get(destConnIdHash);
+        Connection connection = connectionStore.get((long) destConnIdHash);
 
         if (connection == null) {
             if (!ConnectionManager.quiche_version_is_supported(headerInfo.getVersion())) {
-                ctx.write(new NegotiateVersionPacket(headerInfo));
+                ctx.write(new NegotiateVersionMessage(headerInfo));
                 return;
             }
 
 
             if (headerInfo.getToken().length == 0) {
-                ctx.write(new RetryPacket(headerInfo));
+                ctx.write(new RetryMessage(headerInfo));
                 return;
             }
 
@@ -141,6 +143,7 @@ public class QuicConnectionHandler extends ByteToMessageDecoder implements Chann
             }
 
             connection = createConnection(headerInfo.getDestinationConnId(), od_connection_id, config);
+            connectionStore.put(connection);
         }
 
         int done = connection.processReceive(raw);
@@ -150,8 +153,8 @@ public class QuicConnectionHandler extends ByteToMessageDecoder implements Chann
             return;
         }
 
-        DataPacket dataPacket = new DataPacket(connection);
-        out.add(dataPacket);
+        DataMessage dataMessage = new DataMessage(connection);
+        out.add(dataMessage);
     }
 
 
@@ -184,7 +187,6 @@ public class QuicConnectionHandler extends ByteToMessageDecoder implements Chann
     private Connection createConnection(byte[] destination_conn_id, byte[] od_cid, Config config) {
         ServerConnection connection = ConnectionManager.accept(destination_conn_id, od_cid, config);
         connection.setConnectionId(destination_conn_id);
-        connections.put(Arrays.hashCode(destination_conn_id), connection);
         return connection;
     }
 

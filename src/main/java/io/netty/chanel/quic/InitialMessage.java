@@ -7,10 +7,10 @@ import java.util.Objects;
 /**
  * @author Artem Martynenko artem7mag@gmail.com
  **/
-public abstract class InitialPacket {
+public abstract class InitialMessage {
     protected final HeaderInfo headerInfo;
 
-    public InitialPacket(HeaderInfo headerInfo) {
+    public InitialMessage(HeaderInfo headerInfo) {
         this.headerInfo = headerInfo;
     }
 
@@ -23,7 +23,7 @@ public abstract class InitialPacket {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        InitialPacket that = (InitialPacket) o;
+        InitialMessage that = (InitialMessage) o;
         return Objects.equals(headerInfo, that.headerInfo);
     }
 

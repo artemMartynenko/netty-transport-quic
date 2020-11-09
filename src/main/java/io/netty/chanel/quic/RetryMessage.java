@@ -5,8 +5,8 @@ import io.netty.transport.internal.quic.HeaderInfo;
 /**
  * @author Artem Martynenko artem7mag@gmail.com
  **/
-public class RetryPacket extends InitialPacket{
-    public RetryPacket(HeaderInfo headerInfo) {
+public class RetryMessage extends InitialMessage {
+    public RetryMessage(HeaderInfo headerInfo) {
         super(headerInfo);
     }
 }

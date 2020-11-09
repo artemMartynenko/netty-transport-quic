@@ -9,7 +9,7 @@ public class QuicStreamMessage {
     private byte[] data;
     private boolean isFin;
 
-    public QuicStreamMessage(long streamId, long connectionId, byte[] data, boolean isFin) {
+    public QuicStreamMessage(long connectionId, long streamId, byte[] data, boolean isFin) {
         this.streamId = streamId;
         this.connectionId = connectionId;
         this.data = data;
