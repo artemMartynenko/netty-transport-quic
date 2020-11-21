@@ -1,7 +1,7 @@
-package io.netty.chanel.quic.client;
+package io.netty.codec.quic.client;
 
-import io.netty.chanel.quic.QuicChannelConnectionHolder;
-import io.netty.chanel.quic.QuicStreamHandler;
+import io.netty.codec.quic.QuicChannelConnectionHolder;
+import io.netty.codec.quic.QuicStreamHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.DatagramChannel;

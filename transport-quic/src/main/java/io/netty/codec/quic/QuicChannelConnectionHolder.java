@@ -1,4 +1,4 @@
-package io.netty.chanel.quic;
+package io.netty.codec.quic;
 
 import io.netty.transport.internal.quic.Connection;
 

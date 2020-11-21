@@ -1,6 +1,6 @@
-package io.netty.chanel.quic.client;
+package io.netty.codec.quic.client;
 
-import io.netty.chanel.quic.QuicChannelConnectionHolder;
+import io.netty.codec.quic.QuicChannelConnectionHolder;
 import io.netty.transport.internal.quic.Connection;
 
 import java.util.Arrays;

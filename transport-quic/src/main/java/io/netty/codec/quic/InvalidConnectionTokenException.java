@@ -1,4 +1,4 @@
-package io.netty.chanel.quic;
+package io.netty.codec.quic;
 
 public class InvalidConnectionTokenException extends Exception{
 }

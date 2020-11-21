@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+}
+
+group 'io.netty'
+version '0.29-draft.SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven {
+        url "${nexusUrl}/repository/maven-public/"
+    }
+}
+
+dependencies {
+    compile 'org.slf4j:slf4j-api:1.7.21'
+    compile 'io.netty:netty-quiche-native:1.0-SNAPSHOT:linux-aarch64'
+    compile group: 'at.favre.lib', name: 'hkdf', version: '1.1.0'
+    compile group: 'com.google.guava', name: 'guava', version: '29.0-jre'
+    compile group: 'io.netty', name: 'netty-all', version: '4.1.50.Final'
+    compile group: 'io.netty', name: 'netty-tcnative', version: '2.0.31.Final'
+    compile group: 'io.netty', name: 'netty-tcnative-boringssl-static', version: '2.0.31.Final'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}

@@ -1,4 +1,4 @@
-package io.netty.chanel.quic;
+package io.netty.codec.quic;
 
 /**
  * @author Artem Martynenko artem7mag@gmail.com

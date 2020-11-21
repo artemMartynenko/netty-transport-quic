@@ -1,6 +1,6 @@
-package io.netty.chanel.quic.server;
+package io.netty.codec.quic.server;
 
-import io.netty.chanel.quic.QuicChannelConnectionHolder;
+import io.netty.codec.quic.QuicChannelConnectionHolder;
 import io.netty.transport.internal.quic.Connection;
 import io.netty.util.internal.PlatformDependent;
 

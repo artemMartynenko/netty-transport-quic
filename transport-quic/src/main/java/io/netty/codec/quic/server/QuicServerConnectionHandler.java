@@ -1,10 +1,10 @@
-package io.netty.chanel.quic.server;
+package io.netty.codec.quic.server;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.chanel.quic.*;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandler;
 import io.netty.channel.ChannelPromise;
+import io.netty.codec.quic.*;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.transport.internal.quic.*;
 import io.netty.transport.internal.quic.exception.QUICErrorDone;

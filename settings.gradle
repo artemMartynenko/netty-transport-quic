@@ -1,2 +1,4 @@
 rootProject.name = 'netty-transport-quic'
+include 'examples'
+include 'transport-quic'
 

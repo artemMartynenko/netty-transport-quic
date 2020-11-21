@@ -1,8 +1,8 @@
-package io.netty.chanel.quic.client;
+package io.netty.codec.quic.client;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.chanel.quic.DataMessage;
-import io.netty.chanel.quic.QuicChannelConnectionHolder;
+import io.netty.codec.quic.DataMessage;
+import io.netty.codec.quic.QuicChannelConnectionHolder;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandler;
 import io.netty.channel.ChannelPromise;
@@ -14,7 +14,9 @@ import io.netty.transport.internal.quic.exception.QUICErrorDone;
 import io.netty.transport.internal.quic.exception.QUICException;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.net.SocketException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
