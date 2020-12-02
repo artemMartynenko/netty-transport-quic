@@ -27,6 +27,7 @@ import java.nio.ByteBuffer;
 public class EchoServer {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(EchoServer.class);
+    static final int PORT = Integer.parseInt(System.getProperty("port", "4455"));
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
@@ -45,7 +46,7 @@ public class EchoServer {
                         pipeline.addLast(new EchoServerHandler());
                     }
                 });
-        ChannelFuture channelFuture = serverBootstrap.bind(4455).sync();
+        ChannelFuture channelFuture = serverBootstrap.bind(PORT).sync();
 
         channelFuture.channel().closeFuture().sync();
     }
